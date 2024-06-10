@@ -1,31 +1,56 @@
-CREATE TABLE IF NOT EXISTS genres(
+CREATE TABLE IF NOT EXISTS genre(
 id SERIAL PRIMARY KEY,
-name VARCHAR(30) NOT NULL UNIQUE
+name VARCHAR(30) NOT NULL
 );
 
 
-CREATE TABLE IF NOT EXISTS musicians(
+CREATE TABLE IF NOT EXISTS musician(
 id SERIAL PRIMARY KEY,
-name VARCHAR(30),
-genre_id INTEGER references genres(id)
+name VARCHAR(30) NOT NULL
 );
 
 
-CREATE TABLE IF NOT EXISTS albums(
+CREATE TABLE IF NOT EXISTS album(
 id SERIAL PRIMARY KEY,
 name VARCHAR(50) NOT NULL,
-release_year INTEGER CHECK(year>1975),
-musician_id INTEGER references musicians(id)
+release_year INTEGER NOT NULL CHECK(1975<=release_year<=2024)
 );
 		  
 			  
-CREATE TABLE IF NOT EXISTS tracks(
+CREATE TABLE IF NOT EXISTS track(
 id SERIAL PRIMARY KEY,
-name VARCHAR(40) NOT NULL UNIQUE,
-time INTEGER CHECK(length>0),
-album_id INTEGER references albums(id)
+name VARCHAR(40) NOT NULL,
+time INTEGER CHECK (length>0),
+album_id INTEGER NOT NULL references album(id)
 );
 
+
+CREATE TABLE IF NOT EXISTS collection(
+id SERIAL PRIMARY KEY,
+name VARCHAR(50) NOT NULL,
+release_year INTEGER CHECK(1975<=release_year<=2024)
+);
+
+CREATE TABLE IF NOT EXISTS genreMusician(
+id SERIAL PRIMARY KEY,
+musician_id INTEGER references musician(id),
+genre_id INTEGER references genre(id),
+constraint pk PRIMARY KEY(musician_id, genre_id)
+);
+
+CREATE TABLE collectionTrack(
+id SERIAL PRIMARY KEY,
+track_id INTEGER NOT NULL REFERENCES track(id),
+collection_id INTEGER NOT NULL REFERENCES collection(id),
+CONSTRAINT pk PRIMARY KEY (track_id, collection_id)
+);
+
+CREATE TABLE IF NOT EXISTS albumMusician(
+id SERIAL PRIMARY KEY,
+musician_id INTEGER NOT NULL REFERENCES musician(id),
+album_id INTEGER NOT NULL REFERENCES album(id),
+CONSTRAINT id PRIMARY KEY (musician_id, album_id)
+);
 
 INSERT INTO genres(name) VALUES('Rock');
 INSERT INTO genres(name) VALUES('Pop');
@@ -102,14 +127,6 @@ INSERT INTO albums(name, release_year) VALUES('La Good Life','2004');
 INSERT INTO albums(name, release_year) VALUES('Trustfall','2023');
 INSERT INTO albums(name, release_year) VALUES('The Truth About Love','2012');
 
-CREATE TABLE IF NOT EXISTS collections(
-id SERIAL PRIMARY KEY,
-name VARCHAR(50) NOT NULL UNIQUE,
-release_year INTEGER CHECK(year>1975),
-album_id INTEGER references albums(id),
-track_id INTEGER references tracks(id)
-);
-
-INSERT INTO collections(name, release_year) VALUES('The Greatest Hits', '2008');
-INSERT INTO collections(name, release_year) VALUES('Best of the Best', '2023');
-INSERT INTO collections(name, release_year) VALUES('Super disco', '2019');
+INSERT INTO collection(name, release_year) VALUES('The Greatest Hits', '2008');
+INSERT INTO collection(name, release_year) VALUES('Best of the Best', '2023');
+INSERT INTO collection(name, release_year) VALUES('Super disco', '2019');
